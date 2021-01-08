@@ -68,35 +68,40 @@ task("stats", "prints stats about a specific IdleBatchedMint contract")
     const ERC20 = artifacts.require('IERC20Permit');
 
     const contract = await IdleBatchedMint.at(address);
+    const owner = await contract.owner();
 
     const idleTokenAddress = await contract.idleToken();
     const idleToken = await ERC20.at(idleTokenAddress)
     const idleTokenName = await idleToken.name();
-    const idleTokenBalance = await idleToken.balanceOf(address);
+    const idleTokenBalance = toBN(await idleToken.balanceOf(address));
 
     const underlyingTokenAddress = await contract.underlying();
     const underlyingToken = await ERC20.at(underlyingTokenAddress)
     const underlyingTokenName = await underlyingToken.name();
-    const underlyingTokenBalance = await underlyingToken.balanceOf(address);
+    const underlyingTokenBalance = toBN(await underlyingToken.balanceOf(address));
 
-    const decimals = await underlyingToken.decimals();
+    const decimals = toBN(await underlyingToken.decimals());
     const ONE_UNDERLYING_UNIT = toBN(10 ** decimals);
     const ONE_IDLE_UNIT = toBN(10 ** 18);
 
-    const currBatch = await contract.currBatch();
+    const currBatch = toBN(await contract.currBatch());
 
     console.log("");
+    console.log("owner", owner);
     console.log("idleToken:", idleTokenName, idleTokenAddress);
+    console.log("idleToken decimals:", decimals.toString());
+    console.log("ONE_IDLE_UNIT:", ONE_IDLE_UNIT.toString());
     console.log("idleToken balance:", idleTokenBalance.div(ONE_IDLE_UNIT).toString());
     console.log("underlyingToken:", underlyingTokenName, underlyingTokenAddress);
+    console.log("ONE_UNDERLYING_UNIT:", ONE_UNDERLYING_UNIT.toString());
     console.log("underlyingToken balance:", underlyingTokenBalance.div(ONE_UNDERLYING_UNIT).toString());
     console.log("currBatch:", currBatch.toString());
     console.log("");
 
-    for (let i = parseInt(currBatch); i >= 0; i--) {
+    for (let i = currBatch.toNumber(); i >= 0; i--) {
       console.log(`batch ${i}`);
-      const batchTotals = await contract.batchTotals(i);
-      const batchRedeemedTotals = await contract.batchRedeemedTotals(i);
+      const batchTotals = toBN(await contract.batchTotals(i));
+      const batchRedeemedTotals = toBN(await contract.batchRedeemedTotals(i));
 
       console.log("  balance", batchTotals.div(ONE_UNDERLYING_UNIT).toString());
       console.log("  redeemed", batchRedeemedTotals.div(ONE_IDLE_UNIT).toString());
