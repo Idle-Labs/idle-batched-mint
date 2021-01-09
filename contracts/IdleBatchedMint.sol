@@ -28,6 +28,7 @@ contract IdleBatchedMint is Initializable, OwnableUpgradeable, PausableUpgradeab
   uint256 public currBatch;
   address public idleToken;
   address public underlying;
+  // end of V1 #######################
 
   function initialize(address _idleToken) public initializer {
     OwnableUpgradeable.__Ownable_init();
@@ -55,8 +56,7 @@ contract IdleBatchedMint is Initializable, OwnableUpgradeable, PausableUpgradeab
   }
 
   function withdraw(uint256 batchId) external whenNotPaused {
-    require(currBatch != 0 && batchId < currBatch, 'Batch id invalid');
-    require(batchTotals[batchId] > 0, "empty batch");
+    require(batchId < currBatch, 'Batch id invalid');
 
     uint256 deposited = batchDeposits[msg.sender][batchId];
     uint256 batchBal = batchRedeemedTotals[batchId];
@@ -78,7 +78,21 @@ contract IdleBatchedMint is Initializable, OwnableUpgradeable, PausableUpgradeab
     currBatch = currBatch.add(1);
   }
 
+  function redeemGovToken() external whenNotPaused {
+    _redeemGovToken();
+  }
   function withdrawGovToken() external whenNotPaused {
+    _withdrawGovToken();
+  }
+  function redeemAndWithdrawGovToken() external whenNotPaused {
+    _redeemGovToken();
+    _withdrawGovToken();
+  }
+
+  function _redeemGovToken() internal {
+    IIdleTokenV3_1(idleToken).redeemIdleToken(0);
+  }
+  function _withdrawGovToken() internal {
     uint256[] memory amounts = IIdleTokenV3_1(idleToken).getGovTokensAmounts(0x0000000000000000000000000000000000000000);
 
     for (uint256 i = 0; i < amounts.length; i++) {

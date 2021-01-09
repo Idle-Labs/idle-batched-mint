@@ -144,14 +144,6 @@ contract('IdleBatchedMint', function ([_, owner, govOwner, manager, user1, user2
 
     // execute empty batch 2
     await this.batchedMint.executeBatch(true);
-
-    // withdrawing from empty batch throws an error
-    try {
-      await withdraw(user1, 2, "0");
-      throw("withdraw should have failed");
-    } catch (err) {
-      err.should.match(/empty batch/);
-    }
   });
 
   it("withdraws govTokens", async () => {
