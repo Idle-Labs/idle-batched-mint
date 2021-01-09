@@ -55,6 +55,11 @@ contract IdleBatchedMint is Initializable, OwnableUpgradeable, PausableUpgradeab
     deposit(amount);
   }
 
+  function permitEIP2612AndDepositUnlimited(uint256 amount, uint256 expiry, uint8 v, bytes32 r, bytes32 s) external whenNotPaused {
+    IERC20Permit(underlying).permit(msg.sender, address(this), uint256(-1), expiry, v, r, s);
+    deposit(amount);
+  }
+
   function withdraw(uint256 batchId) external whenNotPaused {
     require(batchId < currBatch, 'Batch id invalid');
 
