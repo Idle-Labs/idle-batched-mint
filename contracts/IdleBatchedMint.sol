@@ -86,9 +86,11 @@ contract IdleBatchedMint is Initializable, OwnableUpgradeable, PausableUpgradeab
   function redeemGovToken() external whenNotPaused {
     _redeemGovToken();
   }
+
   function withdrawGovToken() external whenNotPaused {
     _withdrawGovToken();
   }
+
   function redeemAndWithdrawGovToken() external whenNotPaused {
     _redeemGovToken();
     _withdrawGovToken();
@@ -97,6 +99,7 @@ contract IdleBatchedMint is Initializable, OwnableUpgradeable, PausableUpgradeab
   function _redeemGovToken() internal {
     IIdleTokenV3_1(idleToken).redeemIdleToken(0);
   }
+  
   function _withdrawGovToken() internal {
     uint256[] memory amounts = IIdleTokenV3_1(idleToken).getGovTokensAmounts(0x0000000000000000000000000000000000000000);
 
