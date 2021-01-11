@@ -109,6 +109,115 @@
           }
         }
       }
+    },
+    "8d87e2f0888dae5a5556da0aa127265bd297e3ca107b2fe4ba2cf8f0a98602b0": {
+      "address": "0x89bF671ce19EAbC0C9387960198676875F3aB56a",
+      "txHash": "0x337a7ec2ca64cbce02c4f1b4d35eece4f7c1f90c289da218393082c97fedc6bf",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol:24"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol:29"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "@openzeppelin/contracts-upgradeable/GSN/ContextUpgradeable.sol:31"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:20"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:74"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "_paused",
+            "type": "t_bool",
+            "src": "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol:28"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol:96"
+          },
+          {
+            "contract": "IdleBatchedMint",
+            "label": "batchDeposits",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_uint256))",
+            "src": "contracts/IdleBatchedMint.sol:25"
+          },
+          {
+            "contract": "IdleBatchedMint",
+            "label": "batchTotals",
+            "type": "t_mapping(t_uint256,t_uint256)",
+            "src": "contracts/IdleBatchedMint.sol:26"
+          },
+          {
+            "contract": "IdleBatchedMint",
+            "label": "batchRedeemedTotals",
+            "type": "t_mapping(t_uint256,t_uint256)",
+            "src": "contracts/IdleBatchedMint.sol:27"
+          },
+          {
+            "contract": "IdleBatchedMint",
+            "label": "currBatch",
+            "type": "t_uint256",
+            "src": "contracts/IdleBatchedMint.sol:28"
+          },
+          {
+            "contract": "IdleBatchedMint",
+            "label": "idleToken",
+            "type": "t_address",
+            "src": "contracts/IdleBatchedMint.sol:29"
+          },
+          {
+            "contract": "IdleBatchedMint",
+            "label": "underlying",
+            "type": "t_address",
+            "src": "contracts/IdleBatchedMint.sol:30"
+          }
+        ],
+        "types": {
+          "t_mapping(t_address,t_mapping(t_uint256,t_uint256))": {
+            "label": "mapping(address => mapping(uint256 => uint256))"
+          },
+          "t_mapping(t_uint256,t_uint256)": {
+            "label": "mapping(uint256 => uint256)"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
     }
   },
   "admin": {
