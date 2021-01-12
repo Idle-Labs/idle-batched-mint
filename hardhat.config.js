@@ -22,8 +22,8 @@ task("accounts", "Prints the list of accounts", async () => {
  * @type import('hardhat/config').HardhatUserConfig
  */
 
-const mainnetAccounts = []; //process.env.MAINNET_PRIVATE_KEY ? [`0x${process.env.MAINNET_PRIVATE_KEY}`] : [];
-const kovanAccounts   = []; //process.env.KOVAN_PRIVATE_KEY ? [`${process.env.KOVAN_PRIVATE_KEY}`] : [];
+const mainnetAccounts = process.env.MAINNET_PRIVATE_KEY ? [`${process.env.MAINNET_PRIVATE_KEY}`] : [];
+const kovanAccounts   = process.env.KOVAN_PRIVATE_KEY   ? [`${process.env.KOVAN_PRIVATE_KEY}`]   : [];
 
 module.exports = {
   solidity: {
@@ -46,7 +46,8 @@ module.exports = {
       timeout: 120000,
     },
     kovan: {
-      url: `https://kovan.infura.io/v3/${process.env.IDLE_INFURA_KEY}`,
+      // url: `https://kovan.infura.io/v3/${process.env.IDLE_INFURA_KEY}`,
+      url: `https://eth-kovan.alchemyapi.io/v2/${process.env.IDLE_ALCHEMY_KEY}`,
       accounts: kovanAccounts,
     },
     mainnet: {

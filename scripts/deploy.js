@@ -23,6 +23,7 @@ const prompt = (question) => {
 async function main() {
   const network = hre.network.name;
   const signer = new LedgerSigner(ethers.provider, null, "m/44'/60'/0'/0/0");
+  // const signer = (await ethers.getSigners())[0];
   const address = await signer.getAddress();
   const chainId = await web3.eth.getChainId();
 
