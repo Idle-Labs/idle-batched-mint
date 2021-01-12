@@ -99,7 +99,7 @@ contract IdleBatchedMint is Initializable, OwnableUpgradeable, PausableUpgradeab
   function _redeemGovToken() internal {
     IIdleTokenV3_1(idleToken).redeemIdleToken(0);
   }
-  
+
   function _withdrawGovToken() internal {
     uint256[] memory amounts = IIdleTokenV3_1(idleToken).getGovTokensAmounts(0x0000000000000000000000000000000000000000);
 
@@ -116,7 +116,7 @@ contract IdleBatchedMint is Initializable, OwnableUpgradeable, PausableUpgradeab
     IERC20(_token).safeTransfer(_to, IERC20(_token).balanceOf(address(this)));
   }
 
-  function pause() external {
+  function pause() external onlyOwner {
     _pause();
   }
 }
