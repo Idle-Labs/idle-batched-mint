@@ -5,6 +5,7 @@ const { signPermit } = require("../lib");
 const DAIMock = artifacts.require('DAIMock');
 const IdleTokenMock = artifacts.require('IdleTokenMock');
 const IdleBatchedMint = artifacts.require('IdleBatchedMint');
+const TestForwarder = artifacts.require('TestForwarder');
 
 const BNify = n => new BN(String(n));
 
@@ -13,10 +14,11 @@ contract('IdleBatchedMint', function ([_, owner, govOwner, manager, user1, user2
     this.one = new BN('1000000000000000000');
     this.DAIMock = await DAIMock.new({ from: owner });
     this.token = await IdleTokenMock.new(this.DAIMock.address, { from: owner });
+    this.trustedForwarder = await TestForwarder.new();
 
     const signers = await ethers.getSigners();
     const contract = (await ethers.getContractFactory("IdleBatchedMint")).connect(signers[1]);
-    const instance = await upgrades.deployProxy(contract, [this.token.address]);
+    const instance = await upgrades.deployProxy(contract, [this.token.address, this.trustedForwarder.address]);
     this.batchedMint = await IdleBatchedMint.at(instance.address);
   });
 
