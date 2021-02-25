@@ -1,9 +1,9 @@
 const hre = require("hardhat");
 const rl = require("readline");
-const { HardwareSigner } = require("../lib/HardwareSigner");
+const { HardwareSigner } = require("../../lib/HardwareSigner");
 const LedgerSigner = HardwareSigner;
 const { ethers, upgrades } = require("hardhat");
-const { IdleTokens } = require("../lib");
+const { IdleTokens } = require("../../lib");
 
 const prompt = (question) => {
   const r = rl.createInterface({

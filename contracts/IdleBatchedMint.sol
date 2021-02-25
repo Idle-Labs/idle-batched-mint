@@ -43,14 +43,19 @@ contract IdleBatchedMint is Initializable, OwnableUpgradeable, PausableUpgradeab
     _;
   }
 
-  function initialize(address _idleToken, address _trustedForwarder) public initializer {
+  function initialize(address _idleToken) public initializer {
     versionRecipient = "2.0.0-alpha.1+opengsn.test.recipient";
-    trustedForwarder = _trustedForwarder;
     OwnableUpgradeable.__Ownable_init();
     PausableUpgradeable.__Pausable_init();
     idleToken = _idleToken;
     underlying = IIdleTokenV3_1(idleToken).token();
     IERC20(underlying).safeApprove(idleToken, uint256(-1));
+  }
+
+  function initTrustedForwarder(string memory _versionRecipient, address _trustedForwarder) public {
+    require(trustedForwarder == address(0), "TF already initialized");
+    versionRecipient = _versionRecipient;
+    trustedForwarder = _trustedForwarder;
   }
 
   function setVersionRecipient(string memory _versionRecipient) public onlyOwner {
