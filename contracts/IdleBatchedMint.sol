@@ -78,7 +78,7 @@ contract IdleBatchedMint is Initializable, OwnableUpgradeable, PausableUpgradeab
 
   function permitAndDeposit(uint256 amount, uint256 nonce, uint256 expiry, uint8 v, bytes32 r, bytes32 s) external whenNotPaused {
     IERC20Permit(underlying).permit(msg.sender, address(this), nonce, expiry, true, v, r, s);
-    deposit(amount);
+    depositForSender(msg.sender, amount);
   }
 
   function relayedPermitAndDeposit(uint256 amount, uint256 nonce, uint256 expiry, uint8 v, bytes32 r, bytes32 s) external whenNotPaused trustedForwarderOnly {
@@ -89,18 +89,18 @@ contract IdleBatchedMint is Initializable, OwnableUpgradeable, PausableUpgradeab
 
   function permitEIP2612AndDeposit(uint256 amount, uint256 expiry, uint8 v, bytes32 r, bytes32 s) external whenNotPaused {
     IERC20Permit(underlying).permit(msg.sender, address(this), amount, expiry, v, r, s);
-    deposit(amount);
+    depositForSender(msg.sender, amount);
   }
 
   function relayedPermitEIP2612AndDeposit(uint256 amount, uint256 expiry, uint8 v, bytes32 r, bytes32 s) external whenNotPaused {
     address sender = _forwardedMsgSender();
     IERC20Permit(underlying).permit(sender, address(this), amount, expiry, v, r, s);
-    deposit(amount);
+    depositForSender(sender, amount);
   }
 
   function permitEIP2612AndDepositUnlimited(uint256 amount, uint256 expiry, uint8 v, bytes32 r, bytes32 s) external whenNotPaused {
     IERC20Permit(underlying).permit(msg.sender, address(this), uint256(-1), expiry, v, r, s);
-    deposit(amount);
+    depositForSender(msg.sender, amount);
   }
 
   function withdraw(uint256 batchId) external whenNotPaused {
