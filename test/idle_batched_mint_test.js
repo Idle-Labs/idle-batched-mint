@@ -18,8 +18,10 @@ contract('IdleBatchedMint', function ([_, owner, govOwner, manager, user1, user2
 
     const signers = await ethers.getSigners();
     const contract = (await ethers.getContractFactory("IdleBatchedMint")).connect(signers[1]);
-    const instance = await upgrades.deployProxy(contract, [this.token.address, this.trustedForwarder.address]);
+    const instance = await upgrades.deployProxy(contract, [this.token.address]);
     this.batchedMint = await IdleBatchedMint.at(instance.address);
+
+    await this.batchedMint.initTrustedForwarder("2.0.0-alpha.1+opengsn.test.recipient", this.trustedForwarder.address);
   });
 
   it("initializes the contract", async () => {
