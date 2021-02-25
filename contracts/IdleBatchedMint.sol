@@ -92,7 +92,7 @@ contract IdleBatchedMint is Initializable, OwnableUpgradeable, PausableUpgradeab
     depositForSender(msg.sender, amount);
   }
 
-  function relayedPermitEIP2612AndDeposit(uint256 amount, uint256 expiry, uint8 v, bytes32 r, bytes32 s) external whenNotPaused {
+  function relayedPermitEIP2612AndDeposit(uint256 amount, uint256 expiry, uint8 v, bytes32 r, bytes32 s) external whenNotPaused trustedForwarderOnly {
     address sender = _forwardedMsgSender();
     IERC20Permit(underlying).permit(sender, address(this), amount, expiry, v, r, s);
     depositForSender(sender, amount);
