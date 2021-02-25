@@ -44,7 +44,6 @@ contract IdleBatchedMint is Initializable, OwnableUpgradeable, PausableUpgradeab
   }
 
   function initialize(address _idleToken) public initializer {
-    versionRecipient = "2.0.0-alpha.1+opengsn.test.recipient";
     OwnableUpgradeable.__Ownable_init();
     PausableUpgradeable.__Pausable_init();
     idleToken = _idleToken;
