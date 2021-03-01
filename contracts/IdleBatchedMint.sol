@@ -43,14 +43,13 @@ contract IdleBatchedMint is Initializable, OwnableUpgradeable, PausableUpgradeab
     _;
   }
 
-  // Old initialize function used in version 1
-  // function initialize(address _idleToken) public initializer {
-  //   OwnableUpgradeable.__Ownable_init();
-  //   PausableUpgradeable.__Pausable_init();
-  //   idleToken = _idleToken;
-  //   underlying = IIdleTokenV3_1(idleToken).token();
-  //   IERC20(underlying).safeApprove(idleToken, uint256(-1));
-  // }
+  function initialize(address _idleToken) public initializer {
+    OwnableUpgradeable.__Ownable_init();
+    PausableUpgradeable.__Pausable_init();
+    idleToken = _idleToken;
+    underlying = IIdleTokenV3_1(idleToken).token();
+    IERC20(underlying).safeApprove(idleToken, uint256(-1));
+  }
 
   function initTrustedForwarder(string memory _versionRecipient, address _trustedForwarder) public {
     require(trustedForwarder == address(0), "TF already initialized");
