@@ -11,4 +11,5 @@ if [ -z "$1" ]; then
 fi
 
 npx hardhat node \
-  --fork https://$1.infura.io/v3/$IDLE_INFURA_KEY
+  --fork https://eth-$1.alchemyapi.io/v2/$IDLE_ALCHEMY_KEY
+  # --fork https://$1.infura.io/v3/$IDLE_INFURA_KEY

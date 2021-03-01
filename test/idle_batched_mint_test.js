@@ -5,19 +5,44 @@ const { signPermit } = require("../lib");
 const DAIMock = artifacts.require('DAIMock');
 const IdleTokenMock = artifacts.require('IdleTokenMock');
 const IdleBatchedMint = artifacts.require('IdleBatchedMint');
+const TestForwarder = artifacts.require('TestForwarder');
 
 const BNify = n => new BN(String(n));
 
 contract('IdleBatchedMint', function ([_, owner, govOwner, manager, user1, user2, user3, user4]) {
+  const checkBalance = async (who, token, amount) => {
+    if (typeof amount === "string" || typeof amount === "number") {
+      amount = BNify(amount);
+    }
+
+    BNify(await token.balanceOf(who)).should.be.bignumber.equal(amount);
+  }
+
+  const checkUserDeposit = async (bathedMint, user, batch, amount) => {
+    if (typeof amount === "string" || typeof amount === "number") {
+      amount = BNify(amount);
+    }
+
+    BNify(await batchedMint.batchDeposits(user, batch)).should.be.bignumber.equal(amount);
+  }
+
+  const checkBatchTotal = async (batch, amount) => {
+    const batchBalance = await this.batchedMint.batchTotals(batch);
+    batchBalance.toString().should.be.equal(amount);
+  }
+
   beforeEach(async () => {
     this.one = new BN('1000000000000000000');
     this.DAIMock = await DAIMock.new({ from: owner });
     this.token = await IdleTokenMock.new(this.DAIMock.address, { from: owner });
+    this.trustedForwarder = await TestForwarder.new();
 
     const signers = await ethers.getSigners();
     const contract = (await ethers.getContractFactory("IdleBatchedMint")).connect(signers[1]);
     const instance = await upgrades.deployProxy(contract, [this.token.address]);
     this.batchedMint = await IdleBatchedMint.at(instance.address);
+
+    await this.batchedMint.initTrustedForwarder("2.0.0-alpha.1+opengsn.test.recipient", this.trustedForwarder.address);
   });
 
   it("initializes the contract", async () => {
@@ -56,19 +81,6 @@ contract('IdleBatchedMint', function ([_, owner, govOwner, manager, user1, user2
       await this.batchedMint.permitAndDeposit(amount, nonce, expiry, v, r, s, { from: user });
     }
 
-    const checkBalance = async (who, token, amount) => {
-      (await token.balanceOf(who)).toString().should.be.equal(amount);
-    }
-
-    const checkUserDeposit = async (user, batch, amount) => {
-      (await this.batchedMint.batchDeposits(user, batch)).toString().should.be.equal(amount);
-    }
-
-    const checkBatchTotal = async (batch, amount) => {
-      const batchBalance = await this.batchedMint.batchTotals(batch);
-      batchBalance.toString().should.be.equal(amount);
-    }
-
     const withdraw = async (user, batch, expectedAmount) => {
       const initialBalance = await this.token.balanceOf(user);
       await this.batchedMint.withdraw(batch, { from: user });
@@ -85,9 +97,9 @@ contract('IdleBatchedMint', function ([_, owner, govOwner, manager, user1, user2
     await deposit(user3, 6);
 
     // check deposit for each user
-    await checkUserDeposit(user1, 0, "10");
-    await checkUserDeposit(user2, 0, "5");
-    await checkUserDeposit(user3, 0, "6");
+    await checkUserDeposit(this.batchedMint, user1, 0, "10");
+    await checkUserDeposit(this.batchedMint, user2, 0, "5");
+    await checkUserDeposit(this.batchedMint, user3, 0, "6");
 
     // check total deposit and contract tokens balance
     await checkBatchTotal(0, "21");
@@ -111,8 +123,8 @@ contract('IdleBatchedMint', function ([_, owner, govOwner, manager, user1, user2
 
     // user2 permitAndDeposit
     await permitAndDeposit(user2, 30);
-    await checkUserDeposit(user2, 0, "5");
-    await checkUserDeposit(user2, 1, "30");
+    await checkUserDeposit(this.batchedMint, user2, 0, "5");
+    await checkUserDeposit(this.batchedMint, user2, 1, "30");
 
     // user3 deposits to batch 1
     await permitAndDeposit(user3, 100);
@@ -128,9 +140,9 @@ contract('IdleBatchedMint', function ([_, owner, govOwner, manager, user1, user2
     // user2 withdraws batch 1
     await withdraw(user2, 1, "30");
     // user2 deposit for batch 0 is still 5
-    await checkUserDeposit(user2, 0, "5");
+    await checkUserDeposit(this.batchedMint, user2, 0, "5");
     // user2 deposit for batch 1 is 0
-    await checkUserDeposit(user2, 1, "0");
+    await checkUserDeposit(this.batchedMint, user2, 1, "0");
     // user2 has 30 idle tokens
     await checkBalance(user2, this.token, "30");
     // contract has 111 idle tokens
@@ -212,5 +224,39 @@ contract('IdleBatchedMint', function ([_, owner, govOwner, manager, user1, user2
         err.should.match(/Pausable: paused/);
       }
     }
+  });
+
+  it("should deposit using a trusted forwarder", async () => {
+    const user = user1;
+    const amount = BNify("10");
+
+    await checkBalance(this.batchedMint.address, this.token, "0");
+    await checkBalance(this.batchedMint.address, this.DAIMock, "0");
+    await checkBalance(user, this.token, "0");
+    await checkBalance(user, this.DAIMock, "0");
+    await checkUserDeposit(this.batchedMint.address, user, 0, "0");
+
+    // transfer amount from owner to user
+    await this.DAIMock.transfer(user, amount, { from: owner });
+    await checkBalance(user, this.DAIMock, amount);
+
+    const nonce = 0;
+    const expiry = Math.round(new Date().getTime() / 1000 + 3600);
+    const erc20Name = await this.DAIMock.name();
+    const sig =  await signPermit(this.DAIMock.address, erc20Name, user, this.batchedMint.address, amount, nonce, expiry);
+    const r = sig.slice(0, 66);
+    const s = "0x" + sig.slice(66, 130);
+    const v = "0x" + sig.slice(130, 132);
+
+    const methodSig = "relayedPermitAndDeposit(uint256,uint256,uint256,uint8,bytes32,bytes32)";
+    const data = web3.eth.abi.encodeParameters(
+      ["uint256", "uint256", "uint256", "uint8", "bytes32", "bytes32"],
+      [amount, nonce, expiry, v, r, s]
+    )
+
+    const tx = await this.trustedForwarder.execute(this.batchedMint.address, methodSig, data, { from: user });
+
+    await checkBalance(this.batchedMint.address, this.DAIMock, amount);
+    await checkUserDeposit(this.batchedMint.address, user, 0, amount);
   });
 });
